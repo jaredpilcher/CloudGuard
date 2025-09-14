@@ -17,7 +17,9 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from cloudguard.policy.loader import load_policy
 from cloudguard.policy.index import build_region_index
 from cloudguard.runtime.input_gate import InputCloudGate
+from cloudguard.providers.openai_embedder import create_openai_embedder, is_openai_available
 
+# For backwards compatibility, keep a simple mock as fallback
 class MockEmbedder:
     """Enhanced mock embedder for realistic routing demo."""
     
@@ -210,7 +212,14 @@ def run_demo():
         policy = load_policy("demo_policy.yaml")
         
         print("🧠 Building region index...")
-        embedder = MockEmbedder()
+        if is_openai_available():
+            # Use real OpenAI embeddings for production-quality results
+            embedder = create_openai_embedder()
+            print("✅ Using OpenAI embeddings for real semantic understanding")
+        else:
+            print("⚠️  OpenAI embeddings unavailable, falling back to mock")
+            embedder = MockEmbedder()
+        
         index = build_region_index(policy, embedder)
         
         print("🔧 Creating input gate...")

@@ -1,0 +1,22 @@
+version: 1
+thresholds:
+  in_cloud: 0.80       # cosine threshold to be "inside"
+  margin: 0.05         # abstain band near boundaries
+routing:
+  abstain_action: "fallback"   # fallback | human | block | warn
+  default_target: "general_agent"
+
+regions:
+  - id: "billing"
+    label: "Billing & Invoices"
+    seeds:
+      - "invoice, billing statements, payment methods"
+      - "refunds, charges, past due balance"
+    routes_to: "agent_billing"
+
+  - id: "tech_support"
+    label: "Technical Support"
+    seeds:
+      - "install, configure, troubleshooting"
+      - "error codes, reboot, diagnostics"
+    routes_to: "agent_support"

@@ -1,0 +1,23 @@
+version: 1
+thresholds:
+  in_cloud: 0.75       # Slightly lower threshold for output validation
+  margin: 0.1          
+
+routing:
+  abstain_action: "fallback"
+  default_target: null
+
+regions:
+  - id: "billing"
+    label: "Billing & Financial"
+    seeds:
+      - "invoice billing payment financial charges"
+      - "balance due refund credit card"
+    routes_to: "billing_agent"
+
+  - id: "account"
+    label: "Account Management"
+    seeds:
+      - "password reset login account profile"
+      - "settings security authentication"
+    routes_to: "account_agent"

@@ -1,0 +1,5 @@
+# Example dependencies - not required by core CloudGuard
+numpy>=1.24
+langchain-core>=0.2.0
+sentence-transformers>=2.0
+openai>=1.0

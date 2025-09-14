@@ -2,8 +2,8 @@
 OpenAI Embeddings Provider for CloudGuard
 
 This module provides real OpenAI embedding functionality following CloudGuard's
-dependency injection pattern. It implements the Embeddings protocol and can be
-used as a drop-in replacement for MockEmbedder.
+dependency injection pattern. It implements the Embeddings protocol for
+production-quality semantic understanding.
 """
 
 import os
@@ -103,7 +103,7 @@ class OpenAIEmbedder:
                 # Convert to numpy array and ensure float32 for consistency
                 embeddings_array = np.array(embeddings, dtype=np.float32)
                 
-                # Apply L2-normalization to match SentenceTransformers and Mock embedders
+                # Apply L2-normalization to match SentenceTransformers for consistency
                 norms = np.linalg.norm(embeddings_array, axis=1, keepdims=True)
                 # Add small epsilon to prevent division by zero
                 norms = np.maximum(norms, 1e-12)

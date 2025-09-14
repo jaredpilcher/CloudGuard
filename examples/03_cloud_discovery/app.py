@@ -26,6 +26,73 @@ from cloudguard.runtime.input_gate import InputCloudGate
 from cloudguard.core.distance import l2_normalize, cosine
 import yaml
 
+# SentenceTransformers embeddings adapter
+class SbertEmb:
+    """Local SentenceTransformers embeddings adapter."""
+    
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+        try:
+            from sentence_transformers import SentenceTransformer
+            self.model = SentenceTransformer(model_name)
+            print(f"✅ Loaded SentenceTransformers model: {model_name}")
+        except ImportError:
+            raise ImportError("Install sentence-transformers: pip install sentence-transformers")
+    
+    def embed(self, texts):
+        embeddings = self.model.encode(texts)  # (N, D)
+        # L2-normalize
+        norms = np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-12
+        return embeddings / norms
+
+def create_embedder():
+    """Create the best available embedder with proper fallbacks."""
+    
+    # Try different embedding providers in priority order:
+    # 1. OpenAI (best quality, requires API key and working API)
+    # 2. SentenceTransformers (local, good quality)
+    embedder = None
+    
+    # Try OpenAI first
+    try:
+        from cloudguard.providers.openai_embedder import create_openai_embedder, is_openai_available
+        
+        if is_openai_available():
+            print("🔍 Testing OpenAI API connection...")
+            test_embedder = create_openai_embedder()
+            # Test with a small embedding to verify API is working
+            try:
+                test_result = test_embedder.embed(["test connection"])
+                if test_result.shape[0] > 0 and test_result.shape[1] > 0:
+                    embedder = test_embedder
+                    print("✅ Using OpenAI embeddings for best quality semantic understanding")
+                    return embedder
+                else:
+                    raise RuntimeError("OpenAI API returned empty or invalid results")
+            except Exception as api_error:
+                print(f"⚠️  OpenAI API test failed: {api_error}")
+        else:
+            print("⚠️  OpenAI not available (missing package or API key)")
+    except ImportError as e:
+        print(f"⚠️  OpenAI import failed: {e}")
+    
+    # Fallback to SentenceTransformers
+    try:
+        print("🔍 Initializing SentenceTransformers...")
+        embedder = SbertEmb()
+        print("✅ Using local SentenceTransformers for embedding generation")
+        return embedder
+    except ImportError:
+        print("⚠️  SentenceTransformers not available: Install sentence-transformers: pip install sentence-transformers")
+    except Exception as e:
+        print(f"⚠️  SentenceTransformers initialization failed: {e}")
+    
+    # No embedder available
+    print("❌ No real embedding provider available.")
+    print("   Install sentence-transformers for local embeddings:")
+    print("   pip install sentence-transformers")
+    print("   Or configure OpenAI API key: export OPENAI_API_KEY=your_key")
+    raise RuntimeError("No real embedding provider available")
+
 @dataclass
 class EmbeddingExample:
     """Single labeled embedding example."""

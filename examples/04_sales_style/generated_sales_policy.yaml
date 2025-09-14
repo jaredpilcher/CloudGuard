@@ -1,0 +1,24 @@
+clouds:
+  sales_style_router:
+    regions:
+    - id: forceful
+      routing:
+        target: forceful_handler
+      seed_texts:
+      - You need to make a decision today or this offer expires forever
+      - This deal won't be available tomorrow - act now or lose out
+      - I need a yes or no answer right now - what's it going to be?
+      - Sign here and we'll get you the best price, but only if you commit today
+      - Everyone else is buying this - don't get left behind
+    - id: not_assertive
+      routing:
+        target: not_assertive_handler
+      seed_texts:
+      - I think this product might be a good fit for your needs
+      - Maybe we could explore some options that work for you
+      - If you're interested, we could potentially discuss pricing
+      - Perhaps you'd like to think about it and get back to me
+      - I don't want to pressure you - take your time to decide
+    thresholds:
+      abstain_margin: 0.15
+      similarity: 0.6

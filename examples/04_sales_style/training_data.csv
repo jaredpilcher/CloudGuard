@@ -1,0 +1,29 @@
+text,cloud_label,confidence
+"You need to make a decision today or this offer expires forever",forceful,1.0
+"This deal won't be available tomorrow - act now or lose out",forceful,1.0
+"I need a yes or no answer right now - what's it going to be?",forceful,1.0
+"Sign here and we'll get you the best price, but only if you commit today",forceful,1.0
+"Everyone else is buying this - don't get left behind",forceful,1.0
+"If you don't buy now, you'll regret it when prices go up next week",forceful,1.0
+"I can only hold this price for the next 10 minutes",forceful,1.0
+"Look, I'm going to be honest - you'd be crazy not to take this deal",forceful,1.0
+"This is your last chance to get in on this opportunity",forceful,1.0
+"Let me ask you this - what's it going to take to get you to sign today?",forceful,1.0
+"I can throw in free shipping if you decide right now",forceful,0.8
+"This price is only good until the end of the day",forceful,0.9
+"I think this product might be a good fit for your needs",not_assertive,1.0
+"Maybe we could explore some options that work for you",not_assertive,1.0
+"If you're interested, we could potentially discuss pricing",not_assertive,1.0
+"Perhaps you'd like to think about it and get back to me",not_assertive,1.0
+"I don't want to pressure you - take your time to decide",not_assertive,1.0
+"This might not be the right solution for everyone",not_assertive,1.0
+"If it feels right to you, we could move forward",not_assertive,1.0
+"I'm not sure if this is exactly what you're looking for",not_assertive,1.0
+"Maybe we should wait until you're completely comfortable",not_assertive,1.0
+"I hope this information is helpful for your decision",not_assertive,1.0
+"Feel free to reach out if you have any questions later",not_assertive,1.0
+"We could probably work something out if you're interested",not_assertive,0.9
+"Let me know if you'd like to learn more about our services",out_of_cloud,1.0
+"Thank you for your time today",out_of_cloud,1.0
+"Here are the technical specifications you requested",out_of_cloud,1.0
+"Our office hours are 9 AM to 5 PM Monday through Friday",out_of_cloud,1.0

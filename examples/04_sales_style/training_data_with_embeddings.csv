@@ -1,0 +1,25 @@
+text,cloud_label,confidence,emb_0,emb_1,emb_2,emb_3,emb_4,emb_5,emb_6,emb_7,emb_8,emb_9
+"You need to make a decision today or this offer expires forever",forceful,1.0,0.95,0.2,-0.1,0.3,0.1,0.05,-0.15,0.25,0.08,-0.12
+"This deal won't be available tomorrow - act now or lose out",forceful,1.0,0.92,0.25,-0.08,0.28,0.12,0.02,-0.18,0.22,0.05,-0.15
+"I need a yes or no answer right now - what's it going to be?",forceful,1.0,0.94,0.18,-0.12,0.32,0.08,0.08,-0.12,0.28,0.1,-0.1
+"Sign here and we'll get you the best price, but only if you commit today",forceful,1.0,0.91,0.22,-0.15,0.29,0.15,0.01,-0.2,0.24,0.03,-0.18
+"Everyone else is buying this - don't get left behind",forceful,1.0,0.89,0.28,-0.05,0.31,0.09,0.06,-0.16,0.26,0.07,-0.14
+"If you don't buy now, you'll regret it when prices go up next week",forceful,1.0,0.93,0.19,-0.09,0.33,0.11,0.04,-0.17,0.23,0.09,-0.13
+"I can only hold this price for the next 10 minutes",forceful,1.0,0.9,0.24,-0.11,0.3,0.13,0.03,-0.19,0.27,0.06,-0.16
+"Look, I'm going to be honest - you'd be crazy not to take this deal",forceful,1.0,0.88,0.26,-0.13,0.34,0.07,0.07,-0.14,0.29,0.04,-0.11
+"This is your last chance to get in on this opportunity",forceful,1.0,0.92,0.21,-0.07,0.27,0.14,0.02,-0.21,0.25,0.08,-0.17
+"Let me ask you this - what's it going to take to get you to sign today?",forceful,1.0,0.87,0.29,-0.14,0.35,0.06,0.09,-0.13,0.31,0.02,-0.09
+"I think this product might be a good fit for your needs",not_assertive,1.0,-0.1,0.85,0.3,-0.05,0.2,-0.12,0.15,0.08,0.25,-0.18
+"Maybe we could explore some options that work for you",not_assertive,1.0,-0.08,0.88,0.28,-0.08,0.18,-0.15,0.12,0.05,0.28,-0.21
+"If you're interested, we could potentially discuss pricing",not_assertive,1.0,-0.12,0.82,0.32,-0.03,0.22,-0.09,0.18,0.11,0.22,-0.15
+"Perhaps you'd like to think about it and get back to me",not_assertive,1.0,-0.06,0.91,0.25,-0.11,0.16,-0.18,0.09,0.02,0.31,-0.24
+"I don't want to pressure you - take your time to decide",not_assertive,1.0,-0.15,0.79,0.35,0.01,0.24,-0.06,0.21,0.14,0.19,-0.12
+"This might not be the right solution for everyone",not_assertive,1.0,-0.04,0.93,0.23,-0.14,0.14,-0.21,0.06,-0.01,0.34,-0.27
+"If it feels right to you, we could move forward",not_assertive,1.0,-0.09,0.86,0.29,-0.06,0.19,-0.13,0.16,0.09,0.24,-0.17
+"I'm not sure if this is exactly what you're looking for",not_assertive,1.0,-0.13,0.81,0.33,-0.02,0.23,-0.08,0.19,0.12,0.21,-0.14
+"Maybe we should wait until you're completely comfortable",not_assertive,1.0,-0.07,0.89,0.27,-0.09,0.17,-0.16,0.11,0.04,0.29,-0.22
+"I hope this information is helpful for your decision",not_assertive,1.0,-0.11,0.84,0.31,-0.04,0.21,-0.11,0.17,0.1,0.23,-0.16
+"Let me know if you'd like to learn more about our services",out_of_cloud,1.0,0.05,0.1,0.02,-0.8,0.45,0.25,-0.35,0.55,-0.42,0.38
+"Thank you for your time today",out_of_cloud,1.0,0.02,0.08,-0.01,-0.85,0.48,0.22,-0.38,0.52,-0.45,0.41
+"Here are the technical specifications you requested",out_of_cloud,1.0,0.08,0.05,0.05,-0.82,0.41,0.28,-0.32,0.58,-0.39,0.35
+"Our office hours are 9 AM to 5 PM Monday through Friday",out_of_cloud,1.0,0.01,0.12,-0.03,-0.88,0.44,0.19,-0.41,0.49,-0.48,0.44

@@ -71,6 +71,12 @@ class CloudDiscovery:
                 # Check if embeddings are provided or need to be generated
                 has_embeddings = any(col.startswith('emb_') for col in reader.fieldnames)
                 
+                # If no embeddings provided, we need a real embedder
+                embedder = None
+                if not has_embeddings:
+                    embedder = create_embedder()  # This will raise an error if no real embedder available
+                    print("✅ Using real embeddings for cloud discovery")
+                
                 for row in reader:
                     text = str(row['text'])
                     cloud_label = str(row['cloud_label'])
@@ -82,8 +88,8 @@ class CloudDiscovery:
                         emb_cols.sort(key=lambda x: int(x.split('_')[1]))
                         embedding = np.array([float(row[col]) for col in emb_cols], dtype=np.float32)
                     else:
-                        # Require real embeddings - either from CSV or real embedder must be provided
-                        raise ValueError("CSV must contain embedding columns (emb_0, emb_1, ...) or use a real embedder to generate embeddings from text")
+                        # Generate real embedding using OpenAI or SentenceTransformers
+                        embedding = embedder.embed([text])[0]
                     
                     # Normalize embedding
                     embedding = l2_normalize(embedding.reshape(1, -1))[0]

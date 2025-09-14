@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langgraph-cloudguard"
+version = "0.1.0"
+description = "Embedding-cloud guardrails & routing for LangGraph (DI-only: providers injected by the host graph)."
+readme = "README.md"
+authors = [{ name = "CloudGuard Team" }]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.9"
+dependencies = [
+  "pydantic>=2.5",
+  "numpy>=1.24",
+  "langchain-core>=0.2.0",
+  "PyYAML>=6.0"
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=7.0",
+  "pytest-cov"
+]
+examples = [
+  "sentence-transformers>=2.0",
+  "openai>=1.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

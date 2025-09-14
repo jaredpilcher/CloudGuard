@@ -212,12 +212,29 @@ def run_demo():
         policy = load_policy("demo_policy.yaml")
         
         print("🧠 Building region index...")
+        embedder = None
+        
+        # Try OpenAI first with runtime testing
         if is_openai_available():
-            # Use real OpenAI embeddings for production-quality results
-            embedder = create_openai_embedder()
-            print("✅ Using OpenAI embeddings for real semantic understanding")
+            print("🔍 Testing OpenAI API connection...")
+            try:
+                test_embedder = create_openai_embedder()
+                # Test with a small embedding to verify API is working
+                test_result = test_embedder.embed(["test connection"])
+                if test_result.shape[0] > 0 and test_result.shape[1] > 0:
+                    embedder = test_embedder
+                    print("✅ Using OpenAI embeddings for real semantic understanding")
+                else:
+                    raise RuntimeError("OpenAI API returned empty results")
+            except Exception as api_error:
+                print(f"⚠️  OpenAI API test failed: {api_error}")
+                print("🔄 Falling back to mock embedder...")
         else:
-            print("⚠️  OpenAI embeddings unavailable, falling back to mock")
+            print("⚠️  OpenAI embeddings unavailable (missing package or API key)")
+        
+        # Use mock embedder as fallback
+        if embedder is None:
+            print("📝 Using mock embedder for demo")
             embedder = MockEmbedder()
         
         index = build_region_index(policy, embedder)

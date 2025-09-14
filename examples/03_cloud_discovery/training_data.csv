@@ -1,0 +1,26 @@
+text,cloud_label,confidence
+I need help with my invoice,billing,1.0
+Payment processing issues,billing,1.0
+Refund request for overcharge,billing,1.0
+Credit card billing questions,billing,0.9
+Invoice payment due date,billing,0.8
+Software won't install properly,tech_support,1.0
+Application keeps crashing,tech_support,1.0
+Error code 404 not found,tech_support,1.0
+Technical troubleshooting needed,tech_support,0.9
+Computer compatibility issues,tech_support,0.8
+Reset my password please,account,1.0
+Update profile information,account,1.0
+Account login problems,account,1.0
+Change account settings,account,0.9
+Profile security options,account,0.8
+I want to buy your product,sales,1.0
+Pricing information request,sales,1.0
+Demo scheduling inquiry,sales,1.0
+Purchase consultation needed,sales,0.9
+Product features comparison,sales,0.8
+What's the weather today?,out_of_cloud,1.0
+Tell me a joke,out_of_cloud,1.0
+Recipe for chocolate cake,out_of_cloud,1.0
+Movie recommendations,out_of_cloud,0.9
+Sports scores update,out_of_cloud,0.8

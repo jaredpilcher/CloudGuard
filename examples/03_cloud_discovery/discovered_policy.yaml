@@ -1,0 +1,44 @@
+version: 1
+thresholds:
+  in_cloud: 0.5300989038055779
+  margin: 0.1
+routing:
+  abstain_action: fallback
+  default_target: general_agent
+regions:
+- id: billing
+  label: Billing
+  seeds:
+  - I need help with my invoice
+  - Payment processing issues
+  - Refund request for overcharge
+  - Credit card billing questions
+  - Invoice payment due date
+  routes_to: agent_billing
+- id: tech_support
+  label: Tech Support
+  seeds:
+  - Software won't install properly
+  - Application keeps crashing
+  - Error code 404 not found
+  - Technical troubleshooting needed
+  - Computer compatibility issues
+  routes_to: agent_tech_support
+- id: account
+  label: Account
+  seeds:
+  - Reset my password please
+  - Update profile information
+  - Account login problems
+  - Change account settings
+  - Profile security options
+  routes_to: agent_account
+- id: sales
+  label: Sales
+  seeds:
+  - I want to buy your product
+  - Pricing information request
+  - Demo scheduling inquiry
+  - Purchase consultation needed
+  - Product features comparison
+  routes_to: agent_sales

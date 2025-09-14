@@ -1,0 +1,6 @@
+text,cloud_label,confidence
+Billing statement questions,billing,1.0
+Software bug report,tech_support,1.0
+Forgot my login credentials,account,1.0
+Interested in your services,sales,1.0
+Random trivia question,out_of_cloud,1.0

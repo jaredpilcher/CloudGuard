@@ -13,6 +13,8 @@ src/cloudguard/policy/__init__.py
 src/cloudguard/policy/index.py
 src/cloudguard/policy/loader.py
 src/cloudguard/policy/schema.py
+src/cloudguard/providers/__init__.py
+src/cloudguard/providers/openai_embedder.py
 src/cloudguard/runtime/__init__.py
 src/cloudguard/runtime/input_gate.py
 src/cloudguard/runtime/output_gate.py

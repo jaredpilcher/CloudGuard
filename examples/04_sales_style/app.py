@@ -272,24 +272,24 @@ class SalesStyleAnalyzer:
             
             region = {
                 'id': cloud.cloud_id,
-                'seed_texts': seed_texts,
-                'routing': {
-                    'target': f"{cloud.cloud_id}_handler"
-                }
+                'label': f"{cloud.cloud_id.replace('_', ' ').title()} Sales Style",
+                'seeds': seed_texts,  # 'seeds' not 'seed_texts'
+                'routes_to': f"{cloud.cloud_id}_handler"  # 'routes_to' not 'routing.target'
             }
             regions.append(region)
         
-        # Create policy structure
+        # Create proper CloudGuard policy structure
         policy_dict = {
-            'clouds': {
-                'sales_style_router': {
-                    'regions': regions,
-                    'thresholds': {
-                        'similarity': 0.6,  # Base threshold
-                        'abstain_margin': 0.15
-                    }
-                }
-            }
+            'version': 1,
+            'thresholds': {
+                'in_cloud': 0.8,  # Standard threshold
+                'margin': 0.1     # Abstain margin
+            },
+            'routing': {
+                'abstain_action': 'fallback',
+                'default_target': 'default_sales_handler'
+            },
+            'regions': regions
         }
         
         return yaml.dump(policy_dict, default_flow_style=False)
@@ -368,7 +368,7 @@ def test_routing_and_gating(policy_yaml: str, embedder, logger):
     print("-" * 50)
     
     # Create output gate
-    output_gate = OutputCloudGate(policy=policy, index=index, embedder=embedder, logger=logger)
+    output_gate = OutputCloudGate(policy=policy, embedder=embedder, logger=logger)
     
     # Test output validation
     test_scenarios = [
@@ -391,18 +391,21 @@ def test_routing_and_gating(policy_yaml: str, embedder, logger):
         print(f"   LLM Output: \"{scenario['llm_output']}\"")
         
         validation = output_gate.validate(
-            user_input=scenario['user_input'],
-            llm_output=scenario['llm_output']
+            scenario['user_input'],
+            scenario['llm_output']
         )
         
-        if validation.decision == "allow":
-            print(f"   ✅ ALLOWED - Response stays on-topic")
-            print(f"   📊 Coverage: {validation.coverage:.3f}")
+        if validation.ok:
+            print(f"   ✅ VALIDATION PASSED - Output covers input appropriately")
+            print(f"   📊 Coverage: {validation.coverage_ratio:.1%} ({sum(validation.coverage)}/{len(validation.coverage)} segments)")
+            if validation.dropped_segments > 0:
+                print(f"   🗑️  Filtered: {validation.dropped_segments} off-topic segments removed")
+                print(f"   📝 Kept: \"{validation.kept_text}\"")
         else:
-            print(f"   🚫 BLOCKED - {validation.reason}")
-            print(f"   📊 Coverage: {validation.coverage:.3f}")
-            if validation.filtered_output:
-                print(f"   📝 Filtered: \"{validation.filtered_output}\"")
+            print(f"   🚫 VALIDATION FAILED - Insufficient coverage or quality")
+            print(f"   📊 Coverage: {validation.coverage_ratio:.1%} ({sum(validation.coverage)}/{len(validation.coverage)} segments)")
+            if validation.kept_text != scenario['llm_output']:
+                print(f"   📝 After filtering: \"{validation.kept_text}\"")
 
 def main():
     """Main execution function."""

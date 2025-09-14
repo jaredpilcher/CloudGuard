@@ -1,0 +1,33 @@
+version: 1
+thresholds:
+  in_cloud: 0.75       # Lower threshold for demo
+  margin: 0.1          # Larger margin for demo
+
+routing:
+  abstain_action: "fallback"
+  default_target: "general_agent"
+
+regions:
+  - id: "billing"
+    label: "Billing & Invoices"
+    seeds:
+      - "invoice billing statements payment methods"
+      - "refunds charges past due balance"
+      - "credit card payment processing"
+    routes_to: "agent_billing"
+
+  - id: "tech_support"
+    label: "Technical Support"
+    seeds:
+      - "install configure troubleshooting"
+      - "error codes reboot diagnostics"
+      - "software bugs technical issues"
+    routes_to: "agent_support"
+
+  - id: "account"
+    label: "Account Management"
+    seeds:
+      - "profile settings account information"
+      - "password reset login issues"
+      - "subscription management account access"
+    routes_to: "agent_account"

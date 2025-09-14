@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: langgraph-cloudguard
+Version: 0.1.0
+Summary: Embedding-cloud guardrails & routing for LangGraph (DI-only: providers injected by the host graph).
+Author: CloudGuard Team
+License: Apache-2.0
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2.5
+Requires-Dist: numpy>=1.24
+Requires-Dist: langchain-core>=0.2.0
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: test
+Requires-Dist: pytest>=7.0; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Provides-Extra: examples
+Requires-Dist: sentence-transformers>=2.0; extra == "examples"
+Requires-Dist: openai>=1.0; extra == "examples"

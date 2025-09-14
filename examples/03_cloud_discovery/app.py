@@ -62,6 +62,9 @@ class CloudDiscovery:
                 reader = csv.DictReader(f)
                 required_columns = ['text', 'cloud_label']
                 
+                if reader.fieldnames is None:
+                    raise ValueError("CSV file has no headers")
+                    
                 if not all(col in reader.fieldnames for col in required_columns):
                     raise ValueError(f"CSV must contain columns: {required_columns}")
                 
@@ -73,14 +76,14 @@ class CloudDiscovery:
                     cloud_label = str(row['cloud_label'])
                     confidence = float(row.get('confidence', 1.0))
                     
-                    if has_embeddings:
+                    if has_embeddings and reader.fieldnames is not None:
                         # Extract embedding from emb_0, emb_1, emb_2, ... columns
                         emb_cols = [col for col in reader.fieldnames if col.startswith('emb_')]
                         emb_cols.sort(key=lambda x: int(x.split('_')[1]))
                         embedding = np.array([float(row[col]) for col in emb_cols], dtype=np.float32)
                     else:
-                        # Generate mock embedding for demo (in practice, use real embedder)
-                        embedding = self._generate_mock_embedding(text, cloud_label)
+                        # Require real embeddings - either from CSV or real embedder must be provided
+                        raise ValueError("CSV must contain embedding columns (emb_0, emb_1, ...) or use a real embedder to generate embeddings from text")
                     
                     # Normalize embedding
                     embedding = l2_normalize(embedding.reshape(1, -1))[0]
@@ -93,42 +96,6 @@ class CloudDiscovery:
         except Exception as e:
             raise ValueError(f"Failed to load CSV data: {e}")
     
-    def _generate_mock_embedding(self, text: str, cloud_label: str) -> np.ndarray:
-        """Generate mock embeddings for demo purposes."""
-        dim = 384
-        
-        # Cloud-specific base vectors for demo
-        cloud_bases = {
-            "billing": np.array([1.0, 0.0, 0.0]),
-            "tech_support": np.array([0.0, 1.0, 0.0]), 
-            "account": np.array([0.0, 0.0, 1.0]),
-            "sales": np.array([0.7, 0.7, 0.0]),
-            "out_of_cloud": np.array([0.2, 0.2, 0.2])
-        }
-        
-        # Start with random base
-        embedding = np.random.normal(0, 0.1, dim)
-        
-        # Add cloud-specific signal
-        if cloud_label in cloud_bases:
-            embedding[:3] = cloud_bases[cloud_label] + np.random.normal(0, 0.2, 3)
-        
-        # Add text-based features
-        text_lower = text.lower()
-        word_features = {
-            "billing": 1.0, "invoice": 0.9, "payment": 0.8, "refund": 0.7,
-            "tech": 1.0, "support": 0.9, "install": 0.8, "error": 0.7,
-            "account": 1.0, "profile": 0.9, "password": 0.8, "login": 0.7,
-            "sales": 1.0, "buy": 0.9, "purchase": 0.8, "demo": 0.7
-        }
-        
-        for word, strength in word_features.items():
-            if word in text_lower and cloud_label != "out_of_cloud":
-                # Boost the embedding in the direction of the cloud
-                if cloud_label in cloud_bases:
-                    embedding[:3] += cloud_bases[cloud_label] * strength * 0.3
-        
-        return embedding
     
     def discover_clouds(self, examples: List[EmbeddingExample]) -> List[DiscoveredCloud]:
         """Discover clouds from labeled examples using clustering."""
@@ -158,8 +125,8 @@ class CloudDiscovery:
             
             # Compute average distance (radius)
             distances = [cosine(centroid, ex.embedding) for ex in cloud_examples]
-            avg_similarity = np.mean(distances)
-            std_similarity = np.std(distances)
+            avg_similarity = float(np.mean(distances))
+            std_similarity = float(np.std(distances))
             
             # Set threshold based on data distribution (more conservative)
             threshold = max(0.5, avg_similarity - 2 * std_similarity)
@@ -222,7 +189,9 @@ class CloudDiscovery:
         
         print(f"\n🧪 Validating discovery with {len(test_examples)} test examples")
         
-        # Build index and gate
+        # Build index and gate (embedder should not be None at this point)
+        if embedder is None:
+            raise RuntimeError("Embedder is required for validation")
         index = build_region_index(policy, embedder)
         gate = InputCloudGate(policy=policy, index=index, embedder=embedder)
         
@@ -258,46 +227,58 @@ class CloudDiscovery:
         return metrics
 
 def create_embedder():
-    """Create the best available embedder with graceful fallbacks."""
+    """Create the best available embedder with proper fallbacks."""
     from cloudguard.providers.openai_embedder import create_openai_embedder, is_openai_available
     
+    # Try OpenAI first
     if is_openai_available():
-        embedder = create_openai_embedder()
-        print("✅ Using OpenAI embeddings for best quality semantic understanding")
-        return embedder
+        try:
+            print("🔍 Testing OpenAI API connection...")
+            test_embedder = create_openai_embedder()
+            # Test with a small embedding to verify API is working
+            test_result = test_embedder.embed(["test connection"])
+            if test_result.shape[0] > 0 and test_result.shape[1] > 0:
+                print("✅ Using OpenAI embeddings for best quality semantic understanding")
+                return test_embedder
+            else:
+                raise RuntimeError("OpenAI API returned empty results")
+        except Exception as api_error:
+            print(f"⚠️  OpenAI API test failed: {api_error}")
     else:
-        print("📝 OpenAI embeddings unavailable, using mock embedder for demo")
-        return MockEmbedder()
+        print("⚠️  OpenAI not available (missing package or API key)")
+    
+    # Try SentenceTransformers as fallback
+    try:
+        print("🔍 Initializing SentenceTransformers...")
+        from sentence_transformers import SentenceTransformer
+        import numpy as np
+        
+        class SbertEmb:
+            def __init__(self, model_name="sentence-transformers/all-MiniLM-L6-v2"):
+                self.model = SentenceTransformer(model_name)
+                print(f"✅ Loaded SentenceTransformers model: {model_name}")
+            
+            def embed(self, texts):
+                embeddings = self.model.encode(texts)
+                norms = np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-12
+                return embeddings / norms
+        
+        embedder = SbertEmb()
+        print("✅ Using SentenceTransformers embeddings for local processing")
+        return embedder
+        
+    except ImportError:
+        print("⚠️  SentenceTransformers not available")
+    except Exception as sbert_error:
+        print(f"⚠️  SentenceTransformers initialization failed: {sbert_error}")
+    
+    # No fallback - exit with error
+    print("❌ No real embedding provider available.")
+    print("   Install sentence-transformers for local embeddings:")
+    print("   pip install sentence-transformers")
+    print("   Or configure OpenAI API key: export OPENAI_API_KEY=your_key")
+    raise RuntimeError("No real embedding provider available")
 
-class MockEmbedder:
-    """Mock embedder that uses the same generation logic as discovery."""
-    
-    def __init__(self):
-        self.discovery = CloudDiscovery()
-    
-    def embed(self, texts):
-        embeddings = []
-        for text in texts:
-            # For seeds, try to infer cloud type from text content
-            cloud_label = self._infer_cloud_type(text)
-            embedding = self.discovery._generate_mock_embedding(text, cloud_label)
-            embedding = l2_normalize(embedding.reshape(1, -1))[0]
-            embeddings.append(embedding)
-        return np.array(embeddings)
-    
-    def _infer_cloud_type(self, text: str) -> str:
-        """Infer cloud type from text for seed embedding generation."""
-        text_lower = text.lower()
-        if any(word in text_lower for word in ["billing", "invoice", "payment"]):
-            return "billing"
-        elif any(word in text_lower for word in ["tech", "support", "install", "error"]):
-            return "tech_support"
-        elif any(word in text_lower for word in ["account", "profile", "password"]):
-            return "account"
-        elif any(word in text_lower for word in ["sales", "buy", "purchase"]):
-            return "sales"
-        else:
-            return "out_of_cloud"
 
 def main():
     print("🔍 CloudGuard Cloud Discovery")
@@ -334,16 +315,23 @@ def main():
     test_csv = Path(__file__).parent / "test_data.csv"
     if test_csv.exists():
         test_examples = discovery.load_csv_data(test_csv)
-        embedder = create_embedder()
-        metrics = discovery.validate_discovery(policy, test_examples, embedder)
+        try:
+            embedder = create_embedder()
+            metrics = discovery.validate_discovery(policy, test_examples, embedder)
+        except RuntimeError as e:
+            print(f"⚠️  Skipping validation: {e}")
     else:
         print("📝 No test data found, skipping validation")
     
     # Demo the discovered policy
     print(f"\n🚀 Testing discovered policy:")
-    embedder = create_embedder()
-    index = build_region_index(policy, embedder)
-    gate = InputCloudGate(policy=policy, index=index, embedder=embedder)
+    try:
+        embedder = create_embedder()
+        index = build_region_index(policy, embedder)
+        gate = InputCloudGate(policy=policy, index=index, embedder=embedder)
+    except RuntimeError as e:
+        print(f"❌ Cannot demo policy: {e}")
+        return
     
     test_queries = [
         "I need help with my invoice",

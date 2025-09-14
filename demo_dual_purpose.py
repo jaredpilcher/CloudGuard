@@ -19,71 +19,6 @@ from cloudguard.policy.index import build_region_index
 from cloudguard.runtime.input_gate import InputCloudGate
 from cloudguard.providers.openai_embedder import create_openai_embedder, is_openai_available
 
-# For backwards compatibility, keep a simple mock as fallback
-class MockEmbedder:
-    """Enhanced mock embedder for realistic routing demo."""
-    
-    def __init__(self, dim: int = 384):
-        self.dim = dim
-        # Enhanced word-based features for better demo results
-        self.word_features = {
-            # Billing cluster
-            "billing": np.array([1.0, 0.0, 0.0]),
-            "invoice": np.array([0.95, 0.05, 0.0]), 
-            "payment": np.array([0.9, 0.1, 0.0]),
-            "refund": np.array([0.85, 0.15, 0.0]),
-            "charge": np.array([0.8, 0.2, 0.0]),
-            "balance": np.array([0.75, 0.25, 0.0]),
-            
-            # Tech support cluster  
-            "software": np.array([0.0, 1.0, 0.0]),
-            "install": np.array([0.05, 0.95, 0.0]),
-            "tech": np.array([0.1, 0.9, 0.0]),
-            "support": np.array([0.15, 0.85, 0.0]),
-            "error": np.array([0.2, 0.8, 0.0]),
-            "computer": np.array([0.1, 0.85, 0.05]),
-            "troubleshoot": np.array([0.05, 0.9, 0.05]),
-            
-            # Account cluster
-            "account": np.array([0.0, 0.0, 1.0]),
-            "profile": np.array([0.05, 0.05, 0.9]),
-            "password": np.array([0.1, 0.1, 0.8]),
-            "login": np.array([0.15, 0.15, 0.7]),
-            "reset": np.array([0.1, 0.2, 0.7]),
-            "update": np.array([0.05, 0.15, 0.8])
-        }
-        
-    def embed(self, texts):
-        """Create embeddings with strong word-based features for realistic demo."""
-        embeddings = []
-        for text in texts:
-            text_lower = text.lower()
-            
-            # Start with small random base to add some noise
-            vec = np.random.normal(0, 0.05, self.dim)
-            
-            # Add strong word features if found
-            feature_strength = 0.0
-            main_feature = np.zeros(3)
-            
-            for word, feature in self.word_features.items():
-                if word in text_lower:
-                    main_feature += feature * 2.0  # Strong feature signal
-                    feature_strength += 1.0
-            
-            # If we found relevant words, make the signal dominant
-            if feature_strength > 0:
-                vec[:3] = main_feature / max(feature_strength, 1.0)
-                # Add some coherent signal to rest of vector
-                vec[3:] *= 0.1  # Reduce noise in other dimensions
-            
-            # Normalize to unit length
-            norm = np.linalg.norm(vec)
-            if norm > 1e-12:
-                vec = vec / norm
-            embeddings.append(vec)
-            
-        return np.array(embeddings)
 
 class SimpleLogger:
     """Simple console logger for demo."""
@@ -228,14 +163,16 @@ def run_demo():
                     raise RuntimeError("OpenAI API returned empty results")
             except Exception as api_error:
                 print(f"⚠️  OpenAI API test failed: {api_error}")
-                print("🔄 Falling back to mock embedder...")
         else:
             print("⚠️  OpenAI embeddings unavailable (missing package or API key)")
         
-        # Use mock embedder as fallback
+        # No fallback - require real embeddings
         if embedder is None:
-            print("📝 Using mock embedder for demo")
-            embedder = MockEmbedder()
+            print("❌ No real embedding provider available.")
+            print("   Install sentence-transformers for local embeddings:")
+            print("   pip install sentence-transformers")
+            print("   Or configure OpenAI API key: export OPENAI_API_KEY=your_key")
+            return 1
         
         index = build_region_index(policy, embedder)
         

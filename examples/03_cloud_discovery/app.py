@@ -257,6 +257,18 @@ class CloudDiscovery:
         
         return metrics
 
+def create_embedder():
+    """Create the best available embedder with graceful fallbacks."""
+    from cloudguard.providers.openai_embedder import create_openai_embedder, is_openai_available
+    
+    if is_openai_available():
+        embedder = create_openai_embedder()
+        print("✅ Using OpenAI embeddings for best quality semantic understanding")
+        return embedder
+    else:
+        print("📝 OpenAI embeddings unavailable, using mock embedder for demo")
+        return MockEmbedder()
+
 class MockEmbedder:
     """Mock embedder that uses the same generation logic as discovery."""
     
@@ -322,14 +334,14 @@ def main():
     test_csv = Path(__file__).parent / "test_data.csv"
     if test_csv.exists():
         test_examples = discovery.load_csv_data(test_csv)
-        embedder = MockEmbedder()
+        embedder = create_embedder()
         metrics = discovery.validate_discovery(policy, test_examples, embedder)
     else:
         print("📝 No test data found, skipping validation")
     
     # Demo the discovered policy
     print(f"\n🚀 Testing discovered policy:")
-    embedder = MockEmbedder()
+    embedder = create_embedder()
     index = build_region_index(policy, embedder)
     gate = InputCloudGate(policy=policy, index=index, embedder=embedder)
     

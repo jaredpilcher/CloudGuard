@@ -92,12 +92,23 @@ def create_embedder():
         except Exception as sbert_error:
             print(f"⚠️  SentenceTransformers initialization failed: {sbert_error}")
     
-    # Exit with error if no real embeddings available
-    print("❌ No real embedding provider available.")
+    # Fall back to mock embedder for demo purposes
+    if embedder is None:
+        try:
+            from cloudguard.providers.mock_embedder import create_mock_embedder
+            print("🔍 Falling back to mock embedder for demo...")
+            embedder = create_mock_embedder()
+            print("✅ Using mock embedder for demo (limited accuracy)")
+            return embedder
+        except Exception as mock_error:
+            print(f"⚠️  Mock embedder failed: {mock_error}")
+    
+    # Exit with error if no embeddings available at all
+    print("❌ No embedding provider available.")
     print("   Install sentence-transformers for local embeddings:")
     print("   pip install sentence-transformers")
     print("   Or configure OpenAI API key: export OPENAI_API_KEY=your_key")
-    raise RuntimeError("No real embedding provider available")
+    raise RuntimeError("No embedding provider available")
 
 def run_demo():
     """Run the CloudGuard demo."""

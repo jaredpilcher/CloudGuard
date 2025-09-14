@@ -16,15 +16,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "CloudGuard Demo"
+args = "CloudGuard Dual Purpose Demo"
 
 [[workflows.workflow]]
-name = "CloudGuard Demo"
+name = "CloudGuard Dual Purpose Demo"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python demo.py"
+args = "python demo_dual_purpose.py"
 
 [workflows.workflow.metadata]
 outputType = "console"

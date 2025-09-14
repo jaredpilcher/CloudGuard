@@ -16,41 +16,63 @@ from cloudguard.policy.index import build_region_index
 from cloudguard.runtime.input_gate import InputCloudGate
 
 class MockEmbedder:
-    """Simple mock embedder for demo purposes - generates consistent vectors."""
+    """Simple mock embedder for demo purposes - generates consistent, realistic vectors."""
     
     def __init__(self, dim: int = 384):
         self.dim = dim
-        # Simple word-based features for demo
+        # Enhanced word-based features for better demo results
         self.word_features = {
+            # Billing cluster
             "billing": np.array([1.0, 0.0, 0.0]),
-            "invoice": np.array([0.9, 0.1, 0.0]), 
-            "payment": np.array([0.8, 0.2, 0.0]),
-            "refund": np.array([0.7, 0.3, 0.0]),
-            "tech": np.array([0.0, 1.0, 0.0]),
-            "support": np.array([0.1, 0.9, 0.0]),
-            "install": np.array([0.0, 0.8, 0.2]),
+            "invoice": np.array([0.95, 0.05, 0.0]), 
+            "payment": np.array([0.9, 0.1, 0.0]),
+            "refund": np.array([0.85, 0.15, 0.0]),
+            "charge": np.array([0.8, 0.2, 0.0]),
+            "balance": np.array([0.75, 0.25, 0.0]),
+            
+            # Tech support cluster  
+            "software": np.array([0.0, 1.0, 0.0]),
+            "install": np.array([0.05, 0.95, 0.0]),
+            "tech": np.array([0.1, 0.9, 0.0]),
+            "support": np.array([0.15, 0.85, 0.0]),
             "error": np.array([0.2, 0.8, 0.0]),
+            "computer": np.array([0.1, 0.85, 0.05]),
+            "troubleshoot": np.array([0.05, 0.9, 0.05]),
+            
+            # Account cluster
             "account": np.array([0.0, 0.0, 1.0]),
-            "profile": np.array([0.0, 0.1, 0.9]),
-            "password": np.array([0.0, 0.2, 0.8]),
-            "login": np.array([0.1, 0.1, 0.8])
+            "profile": np.array([0.05, 0.05, 0.9]),
+            "password": np.array([0.1, 0.1, 0.8]),
+            "login": np.array([0.15, 0.15, 0.7]),
+            "reset": np.array([0.1, 0.2, 0.7]),
+            "update": np.array([0.05, 0.15, 0.8])
         }
         
     def embed(self, texts):
-        """Create simple embeddings based on word presence."""
+        """Create embeddings with strong word-based features for realistic demo."""
         embeddings = []
         for text in texts:
             text_lower = text.lower()
-            # Start with base vector
-            vec = np.random.normal(0, 0.1, self.dim)
             
-            # Add word features if found
+            # Start with small random base to add some noise
+            vec = np.random.normal(0, 0.05, self.dim)
+            
+            # Add strong word features if found
+            feature_strength = 0.0
+            main_feature = np.zeros(3)
+            
             for word, feature in self.word_features.items():
                 if word in text_lower:
-                    # Add feature to first 3 dimensions
-                    vec[:3] += feature * 0.5
-                    
-            # Normalize
+                    main_feature += feature * 2.0  # Strong feature signal
+                    feature_strength += 1.0
+            
+            # If we found relevant words, make the signal dominant
+            if feature_strength > 0:
+                vec[:3] = main_feature / max(feature_strength, 1.0)
+                # Add some coherent signal to rest of vector
+                vec[3:] *= 0.1  # Reduce noise in other dimensions
+            
+            # Normalize to unit length
             norm = np.linalg.norm(vec)
             if norm > 1e-12:
                 vec = vec / norm
